@@ -13,6 +13,8 @@ const config: Config = {
   transformIgnorePatterns: [
     '/node_modules/(?!@kubernetes/client-node/)',
   ],
+  watchPathIgnorePatterns: ['<rootDir>/.next/'],
+  modulePathIgnorePatterns: ['<rootDir>/.next/'],
 }
 
 export default createJestConfig(config)
