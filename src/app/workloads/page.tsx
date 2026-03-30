@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import { Shell } from '@/components/layout/Shell'
 import { PodList } from '@/components/workloads/PodList'
 import { DeploymentList } from '@/components/workloads/DeploymentList'

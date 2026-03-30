@@ -17,7 +17,7 @@ describe('GET /api/k8s/pods', () => {
         },
       ],
     }
-    const mockApi = { listPodForAllNamespaces: jest.fn().mockResolvedValue({ body: mockPods }) }
+    const mockApi = { listPodForAllNamespaces: jest.fn().mockResolvedValue(mockPods) }
     ;(k8sClient.getCoreV1Api as jest.Mock).mockReturnValue(mockApi)
 
     const response = await GET(new Request('http://localhost/api/k8s/pods'))

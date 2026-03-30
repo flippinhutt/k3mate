@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import { Shell } from '@/components/layout/Shell'
 import { ClusterOverview } from '@/components/dashboard/ClusterOverview'
 

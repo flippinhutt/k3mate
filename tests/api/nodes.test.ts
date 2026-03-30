@@ -19,7 +19,7 @@ describe('GET /api/k8s/nodes', () => {
         },
       ],
     }
-    const mockApi = { listNode: jest.fn().mockResolvedValue({ body: mockNodes }) }
+    const mockApi = { listNode: jest.fn().mockResolvedValue(mockNodes) }
     ;(k8sClient.getCoreV1Api as jest.Mock).mockReturnValue(mockApi)
 
     const response = await GET()

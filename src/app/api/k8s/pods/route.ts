@@ -5,11 +5,11 @@ export async function GET(request: NextRequest) {
   try {
     const namespace = new URL(request.url).searchParams.get('namespace') ?? undefined
     const api = getCoreV1Api()
-    const { body } = namespace
-      ? await api.listNamespacedPod(namespace)
+    const result = namespace
+      ? await api.listNamespacedPod({ namespace })
       : await api.listPodForAllNamespaces()
 
-    const pods = body.items.map(pod => ({
+    const pods = result.items.map(pod => ({
       name: pod.metadata?.name ?? 'unknown',
       namespace: pod.metadata?.namespace ?? 'default',
       phase: pod.status?.phase ?? 'Unknown',

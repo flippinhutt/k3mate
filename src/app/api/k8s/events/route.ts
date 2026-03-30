@@ -5,11 +5,11 @@ export async function GET(request: NextRequest) {
   try {
     const namespace = new URL(request.url).searchParams.get('namespace') ?? undefined
     const api = getCoreV1Api()
-    const { body } = namespace
-      ? await api.listNamespacedEvent(namespace)
+    const result = namespace
+      ? await api.listNamespacedEvent({ namespace })
       : await api.listEventForAllNamespaces()
 
-    const events = body.items
+    const events = result.items
       .map(e => ({
         name: e.metadata?.name ?? 'unknown',
         namespace: e.metadata?.namespace ?? 'default',

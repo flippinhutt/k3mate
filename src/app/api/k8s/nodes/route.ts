@@ -4,8 +4,8 @@ import { getCoreV1Api } from '@/lib/k8s-client'
 export async function GET() {
   try {
     const api = getCoreV1Api()
-    const { body } = await api.listNode()
-    const nodes = body.items.map(node => ({
+    const result = await api.listNode()
+    const nodes = result.items.map(node => ({
       name: node.metadata?.name ?? 'unknown',
       ready: node.status?.conditions?.find(c => c.type === 'Ready')?.status === 'True',
       createdAt: node.metadata?.creationTimestamp,

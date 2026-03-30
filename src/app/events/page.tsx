@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import { Shell } from '@/components/layout/Shell'
 import { EventFeed } from '@/components/events/EventFeed'
 

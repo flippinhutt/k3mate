@@ -17,7 +17,7 @@ describe('GET /api/k8s/deployments', () => {
         },
       ],
     }
-    const mockApi = { listDeploymentForAllNamespaces: jest.fn().mockResolvedValue({ body: mockDeployments }) }
+    const mockApi = { listDeploymentForAllNamespaces: jest.fn().mockResolvedValue(mockDeployments) }
     ;(k8sClient.getAppsV1Api as jest.Mock).mockReturnValue(mockApi)
 
     const response = await GET(new Request('http://localhost/api/k8s/deployments'))

@@ -5,11 +5,11 @@ export async function GET(request: NextRequest) {
   try {
     const namespace = new URL(request.url).searchParams.get('namespace') ?? undefined
     const api = getAppsV1Api()
-    const { body } = namespace
-      ? await api.listNamespacedDeployment(namespace)
+    const result = namespace
+      ? await api.listNamespacedDeployment({ namespace })
       : await api.listDeploymentForAllNamespaces()
 
-    const deployments = body.items.map(d => ({
+    const deployments = result.items.map(d => ({
       name: d.metadata?.name ?? 'unknown',
       namespace: d.metadata?.namespace ?? 'default',
       replicas: d.spec?.replicas ?? 0,
