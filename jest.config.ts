@@ -10,6 +10,9 @@ const config: Config = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
+  transformIgnorePatterns: [
+    '/node_modules/(?!@kubernetes/client-node/)',
+  ],
 }
 
 export default createJestConfig(config)
