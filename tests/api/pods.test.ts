@@ -13,7 +13,7 @@ describe('GET /api/k8s/pods', () => {
         {
           metadata: { name: 'pod-1', namespace: 'default', labels: {} },
           status: { phase: 'Running', podIP: '10.0.0.1', containerStatuses: [] },
-          spec: { nodeName: 'node-1' },
+          spec: { nodeName: 'node-1', containers: [] },
         },
       ],
     }
@@ -26,5 +26,30 @@ describe('GET /api/k8s/pods', () => {
     expect(data.pods).toHaveLength(1)
     expect(data.pods[0].name).toBe('pod-1')
     expect(data.pods[0].phase).toBe('Running')
+  })
+
+  it('includes container ports and images in pod response', async () => {
+    const mockPods = {
+      items: [
+        {
+          metadata: { name: 'web', namespace: 'default' },
+          status: { phase: 'Running', podIP: '10.0.0.2', containerStatuses: [] },
+          spec: {
+            nodeName: 'node-1',
+            containers: [
+              { name: 'app', image: 'nginx:1.24.0', ports: [{ containerPort: 3000, protocol: 'TCP', name: 'http' }] },
+            ],
+          },
+        },
+      ],
+    }
+    const mockApi = { listPodForAllNamespaces: jest.fn().mockResolvedValue(mockPods) }
+    ;(k8sClient.getCoreV1Api as jest.Mock).mockReturnValue(mockApi)
+
+    const response = await GET(new Request('http://localhost/api/k8s/pods'))
+    const data = await response.json()
+
+    expect(data.pods[0].ports).toEqual([{ name: 'http', containerPort: 3000, protocol: 'TCP' }])
+    expect(data.pods[0].containers).toEqual([{ name: 'app', image: 'nginx:1.24.0' }])
   })
 })

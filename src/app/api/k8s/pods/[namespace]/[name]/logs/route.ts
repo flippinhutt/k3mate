@@ -1,6 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getCoreV1Api } from '@/lib/k8s-client'
 
+/**
+ * GET handler for retrieving pod logs.
+ * Fetches the last 200 lines of logs for the specified pod.
+ *
+ * @param {NextRequest} _request The incoming HTTP request (unused).
+ * @param {Object} context Route context containing path parameters.
+ * @param {Promise<{ namespace: string; name: string }>} context.params Path parameters.
+ * @returns {Promise<NextResponse>} A JSON response containing the logs string.
+ */
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ namespace: string; name: string }> }

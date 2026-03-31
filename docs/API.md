@@ -5,7 +5,7 @@ This document provides technical details for the internal API endpoints used by 
 ## Kubernetes Resources
 
 ### 1. Pods
-Retrieve information about pods in the cluster.
+Retrieve information about pods in the cluster or specific namespaces.
 
 - **URL**: `/api/k8s/pods`
 - **Method**: `GET`
@@ -23,16 +23,32 @@ Retrieve information about pods in the cluster.
         "nodeName": "string",
         "restartCount": "number",
         "ready": "boolean",
-        "createdAt": "ISO8601 String"
+        "createdAt": "ISO8601 String",
+        "ports": [{ "name": "string", "containerPort": "number", "protocol": "string" }],
+        "containers": [{ "name": "string", "image": "string" }]
       }
     ]
   }
   ```
 
+#### 1.1 Pod Logs
+Stream or retrieve real-time logs for a specific pod.
+
+- **URL**: `/api/k8s/pods/[namespace]/[name]/logs`
+- **Method**: `GET`
+- **Response**: `{"logs": "string"}`
+
+#### 1.2 Pod Restart
+Trigger a pod restart by deleting the pod entity.
+
+- **URL**: `/api/k8s/pods/[namespace]/[name]/restart`
+- **Method**: `POST`
+- **Response**: `{"ok": true, "message": "string"}`
+
 ---
 
 ### 2. Deployments
-Retrieve information about deployments in the cluster.
+Retrieve information about deployments and manage scaling.
 
 - **URL**: `/api/k8s/deployments`
 - **Method**: `GET`
@@ -47,12 +63,21 @@ Retrieve information about deployments in the cluster.
         "namespace": "string",
         "replicas": "number",
         "readyReplicas": "number",
-        "availableReplicas": "number",
-        "createdAt": "ISO8601 String"
+        "updatedReplicas": "number",
+        "images": [{ "name": "string", "image": "string" }],
+        "conditions": [{ "type": "string", "status": "string", "reason": "string", "message": "string" }]
       }
     ]
   }
   ```
+
+#### 2.1 Scale Deployment
+Update the replica count for a deployment.
+
+- **URL**: `/api/k8s/deployments/[namespace]/[name]/scale`
+- **Method**: `POST`
+- **Body**: `{"replicas": "number"}`
+- **Response**: `{"ok": true, "replicas": "number"}`
 
 ---
 
@@ -69,6 +94,7 @@ Retrieve information about cluster nodes and their health.
         "name": "string",
         "ready": "boolean",
         "createdAt": "ISO8601 String",
+        "kubeletVersion": "string",
         "allocatable": {
           "cpu": "string",
           "memory": "string"
@@ -81,7 +107,7 @@ Retrieve information about cluster nodes and their health.
 ---
 
 ### 4. Events
-Retrieve the 100 most recent cluster events.
+Retrieve the 100 most recent cluster events across all namespaces.
 
 - **URL**: `/api/k8s/events`
 - **Method**: `GET`
@@ -94,10 +120,7 @@ Retrieve the 100 most recent cluster events.
       {
         "name": "string",
         "namespace": "string",
-        "involvedObject": {
-          "kind": "string",
-          "name": "string"
-        },
+        "involvedObject": { "kind": "string", "name": "string" },
         "reason": "string",
         "message": "string",
         "type": "string",
@@ -108,43 +131,36 @@ Retrieve the 100 most recent cluster events.
   }
   ```
 
+---
+
+### 5. Updates & Image Health
+
+#### 5.1 Cluster Updates
+Check for available k3s release updates.
+
+- **URL**: `/api/k8s/updates`
+- **Method**: `GET`
+- **Response**: `{"hasUpdate": "boolean", "currentVersion": "string", "latestVersion": "string"}`
+
+#### 5.2 Image Registry Check
+Bulk check for available updates on Docker Hub for a list of images.
+
+- **URL**: `/api/k8s/image-updates`
+- **Method**: `POST`
+- **Body**: `{"images": ["string"]}`
+- **Response**: `{"updates": { "image-ref": { "hasUpdate": "boolean", "latestTag": "string", "checked": "boolean" }}}`
+
 ## Authentication
 
 ### 1. Login
-Authenticate with the dashboard.
-
 - **URL**: `/api/auth/login`
 - **Method**: `POST`
-- **Body**:
-  ```json
-  {
-    "password": "string"
-  }
-  ```
-- **Response**:
-  - `200 OK`: `{"success": true}`
-  - `401 Unauthorized`: `{"error": "Invalid password"}`
+- **Body**: `{"password": "string"}`
+- **Response**: `{"ok": true}`
 
 ---
 
 ### 2. Logout
-Clear the current session.
-
 - **URL**: `/api/auth/logout`
 - **Method**: `POST`
-- **Response**:
-  - `200 OK`: `{"success": true}`
-
----
-
-### 3. Session Status
-Check if the current session is authenticated.
-
-- **URL**: `/api/auth/session`
-- **Method**: `GET`
-- **Response**:
-  ```json
-  {
-    "authenticated": "boolean"
-  }
-  ```
+- **Response**: `{"ok": true}`

@@ -52,11 +52,32 @@ npm install
 npm run dev
 ```
 
-## 📖 Documentation
+### 🐳 Deployment (Docker)
+The easiest way to deploy `k3mate` is using Docker Compose.
 
-- **[Technical API Reference](file:///Users/ryanhutto/projects/k3mate/docs/API.md)**: Detailed documentation of all internal API endpoints.
-- **[Architecture & Security](file:///Users/ryanhutto/projects/k3mate/CLAUDE.md)**: Project-specific rules, architecture, and security guidelines.
-- **Testing Guide**: Refer to files in `tests/` for implementation examples.
+1.  **Configure environment**:
+    ```bash
+    export SESSION_SECRET=$(openssl rand -hex 32)
+    export KUBECONFIG_HOST_PATH=~/.kube/config
+    ```
+2.  **Start the container**:
+    ```bash
+    docker-compose up -d
+    ```
+    The dashboard will be available at `http://localhost:3000`.
+
+### 🛠 Production Build
+For manual production deployments:
+```bash
+npm run build
+npm start
+```
+
+## 📖 Documentation
+- **[Technical API Reference](docs/API.md)**: Detailed documentation of all internal API endpoints.
+- **[Contributing Guide](CONTRIBUTING.md)**: How to help improve k3mate.
+- **[License](LICENSE)**: MIT License.
+- **[Architecture & Security](CLAUDE.md)**: Project-specific rules and security guidelines.
 
 ---
 

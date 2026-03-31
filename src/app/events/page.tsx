@@ -14,7 +14,7 @@ export default async function EventsPage() {
   const events = await getEvents()
   return (
     <Shell>
-      <h1 className="text-xl font-bold mb-6">Events</h1>
+      <h1 className="text-xl font-bold mb-6 text-slate-100">Events</h1>
       <EventFeed events={events} />
     </Shell>
   )

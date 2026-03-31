@@ -25,7 +25,18 @@ export async function GET(request: NextRequest) {
       replicas: d.spec?.replicas ?? 0,
       readyReplicas: d.status?.readyReplicas ?? 0,
       availableReplicas: d.status?.availableReplicas ?? 0,
+      updatedReplicas: d.status?.updatedReplicas ?? 0,
       createdAt: d.metadata?.creationTimestamp,
+      images: d.spec?.template?.spec?.containers?.map(c => ({
+        name: c.name,
+        image: c.image ?? 'unknown',
+      })) ?? [],
+      conditions: d.status?.conditions?.map(c => ({
+        type: c.type,
+        status: c.status,
+        reason: c.reason,
+        message: c.message,
+      })) ?? [],
     }))
 
     return NextResponse.json({ deployments })

@@ -15,6 +15,7 @@ describe('GET /api/k8s/nodes', () => {
           status: {
             conditions: [{ type: 'Ready', status: 'True' }],
             allocatable: { cpu: '4', memory: '8Gi' },
+            nodeInfo: { kubeletVersion: 'v1.31.5+k3s1' },
           },
         },
       ],
@@ -28,6 +29,7 @@ describe('GET /api/k8s/nodes', () => {
     expect(data.nodes).toHaveLength(1)
     expect(data.nodes[0].name).toBe('node-1')
     expect(data.nodes[0].ready).toBe(true)
+    expect(data.nodes[0].kubeletVersion).toBe('v1.31.5+k3s1')
   })
 
   it('returns 500 on k8s API error', async () => {

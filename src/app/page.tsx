@@ -22,7 +22,7 @@ export default async function DashboardPage() {
   const data = await getClusterData()
   return (
     <Shell>
-      <h1 className="text-xl font-bold mb-6">Dashboard</h1>
+      <h1 className="text-xl font-bold mb-6 text-slate-100">Dashboard</h1>
       <ClusterOverview {...data} />
     </Shell>
   )

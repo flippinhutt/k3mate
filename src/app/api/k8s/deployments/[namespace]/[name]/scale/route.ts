@@ -1,6 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAppsV1Api } from '@/lib/k8s-client'
 
+/**
+ * POST handler for scaling a Kubernetes deployment.
+ * Updates the 'replicas' count for the specified deployment.
+ *
+ * @param {NextRequest} request The incoming HTTP request containing the target replica count.
+ * @param {Object} context Route context containing path parameters.
+ * @param {Promise<{ namespace: string; name: string }>} context.params Path parameters.
+ * @returns {Promise<NextResponse>} A JSON response indicating the updated replica count.
+ */
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ namespace: string; name: string }> }

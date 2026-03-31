@@ -14,6 +14,7 @@ export async function GET() {
       name: node.metadata?.name ?? 'unknown',
       ready: node.status?.conditions?.find(c => c.type === 'Ready')?.status === 'True',
       createdAt: node.metadata?.creationTimestamp,
+      kubeletVersion: node.status?.nodeInfo?.kubeletVersion,
       allocatable: {
         cpu: node.status?.allocatable?.cpu,
         memory: node.status?.allocatable?.memory,

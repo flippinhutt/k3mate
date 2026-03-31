@@ -28,6 +28,15 @@ export async function GET(request: NextRequest) {
       restartCount: pod.status?.containerStatuses?.reduce((sum, c) => sum + c.restartCount, 0) ?? 0,
       ready: pod.status?.containerStatuses?.every(c => c.ready) ?? false,
       createdAt: pod.metadata?.creationTimestamp,
+      ports: pod.spec?.containers?.flatMap(c => c.ports ?? []).map(p => ({
+        name: p.name,
+        containerPort: p.containerPort,
+        protocol: p.protocol ?? 'TCP',
+      })) ?? [],
+      containers: pod.spec?.containers?.map(c => ({
+        name: c.name,
+        image: c.image ?? 'unknown',
+      })) ?? [],
     }))
 
     return NextResponse.json({ pods })

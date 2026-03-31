@@ -1,6 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getCoreV1Api } from '@/lib/k8s-client'
 
+/**
+ * POST handler for restarting a Kubernetes pod.
+ * Triggers a restart by deleting the pod; the controller (e.g., ReplicaSet)
+ * is responsible for creating a replacement.
+ *
+ * @param {NextRequest} _request The incoming HTTP request (unused).
+ * @param {Object} context Route context containing path parameters.
+ * @param {Promise<{ namespace: string; name: string }>} context.params Path parameters.
+ * @returns {Promise<NextResponse>} A JSON response indicating if the restart was triggered.
+ */
 export async function POST(
   _request: NextRequest,
   { params }: { params: Promise<{ namespace: string; name: string }> }

@@ -4,7 +4,7 @@ import { getIronSession } from 'iron-session'
 import { SESSION_OPTIONS } from '@/lib/auth'
 
 /**
- * Next.js middleware for handling dashboard authentication.
+ * Next.js proxy for handling dashboard authentication.
  * 
  * - Skips authentication for login pages and auth-related API routes.
  * - If DASHBOARD_PASSWORD is not set, authentication is bypassed.
@@ -13,7 +13,7 @@ import { SESSION_OPTIONS } from '@/lib/auth'
  * @param {NextRequest} request The incoming HTTP request.
  * @returns {NextResponse} The next response object or a redirect to the login page.
  */
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   // Skip auth for login page and auth API routes
   if (
     request.nextUrl.pathname.startsWith('/login') ||
