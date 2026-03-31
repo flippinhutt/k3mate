@@ -1,6 +1,11 @@
 import { NextResponse } from 'next/server'
 import { getCoreV1Api } from '@/lib/k8s-client'
 
+/**
+ * GET handler for retrieving cluster nodes and their health status.
+ *
+ * @returns {Promise<NextResponse>} A JSON response containing an array of cluster nodes and health info.
+ */
 export async function GET() {
   try {
     const api = getCoreV1Api()

@@ -1,6 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getCoreV1Api } from '@/lib/k8s-client'
 
+/**
+ * GET handler for retrieving pods from the Kubernetes cluster.
+ * Supports filtering by namespace via the 'namespace' query parameter.
+ * 
+ * - If 'namespace' is provided, returns all pods in that specific namespace.
+ * - If 'namespace' is omitted, returns all pods across all namespaces.
+ * 
+ * @param {NextRequest} request The incoming HTTP request.
+ * @returns {NextResponse} A JSON response containing an array of pods or an error message.
+ */
 export async function GET(request: NextRequest) {
   try {
     const namespace = new URL(request.url).searchParams.get('namespace') ?? undefined

@@ -3,6 +3,16 @@ import type { NextRequest } from 'next/server'
 import { getIronSession } from 'iron-session'
 import { SESSION_OPTIONS } from '@/lib/auth'
 
+/**
+ * Next.js middleware for handling dashboard authentication.
+ * 
+ * - Skips authentication for login pages and auth-related API routes.
+ * - If DASHBOARD_PASSWORD is not set, authentication is bypassed.
+ * - If the session is not authenticated, redirects the user to the /login page.
+ * 
+ * @param {NextRequest} request The incoming HTTP request.
+ * @returns {NextResponse} The next response object or a redirect to the login page.
+ */
 export async function middleware(request: NextRequest) {
   // Skip auth for login page and auth API routes
   if (
