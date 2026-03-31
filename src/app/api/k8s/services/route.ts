@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getCoreV1Api } from '@/lib/k8s-client'
 
+/**
+ * GET handler for retrieving cluster services from Kubernetes.
+ * Supports filtering by namespace via the 'namespace' query parameter.
+ *
+ * @async
+ * @param {NextRequest} request The incoming HTTP request.
+ * @returns {Promise<NextResponse>} A JSON response containing an array of services.
+ */
 export async function GET(request: NextRequest) {
   try {
     const namespace = new URL(request.url).searchParams.get('namespace') ?? undefined

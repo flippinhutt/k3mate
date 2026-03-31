@@ -1,5 +1,5 @@
-'use client'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { StatusDot } from '@/components/ui/StatusDot'
 
 /**
@@ -69,26 +69,72 @@ interface Props {
 }
 
 /**
- * DeploymentList renders a manageabe list of Kubernetes deployments.
- * Users can view readiness status, container images, and perform quick
- * scaling actions through the interface.
- *
- * @component
- * @param {Props} props The component props.
  * @returns {JSX.Element} The rendered deployment list.
  */
 export function DeploymentList({ deployments }: Props) {
+  const router = useRouter()
   const [scaling, setScaling] = useState<string | null>(null)
+  const [updating, setUpdating] = useState<string | null>(null)
 
+  /**
+   * Triggers a deployment scale action via the internal API.
+   *
+   * @async
+   * @param {string} namespace The deployment namespace.
+   * @param {string} name The deployment name.
+   * @param {number} replicas The target replica count.
+   * @returns {Promise<void>}
+   */
   async function scale(namespace: string, name: string, replicas: number) {
     if (replicas < 0) return
     setScaling(`${namespace}/${name}`)
-    await fetch(`/api/k8s/deployments/${namespace}/${name}/scale`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ replicas }),
-    })
+    try {
+      await fetch(`/api/k8s/deployments/${namespace}/${name}/scale`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ replicas }),
+      })
+      router.refresh()
+    } catch (err) {
+      console.error('Failed to scale deployment', err)
+    }
     setScaling(null)
+  }
+
+  /**
+   * Applies an image update to a specific deployment container.
+   * Compares the current image with the latest tag and patches the deployment.
+   *
+   * @async
+   * @param {string} namespace The deployment namespace.
+   * @param {string} name The deployment name.
+   * @param {string} containerName The name of the container within the deployment.
+   * @param {string} image The current full image reference.
+   * @param {string} latestTag The new tag to apply.
+   * @returns {Promise<void>}
+   */
+  async function applyUpdate(namespace: string, name: string, containerName: string, image: string, latestTag: string) {
+    const newImage = image.includes(':') 
+      ? `${image.split(':')[0]}:${latestTag}` 
+      : `${image}:${latestTag}`
+    
+    if (!confirm(`Update ${name} container "${containerName}" to ${latestTag}?`)) return
+
+    const key = `${namespace}/${name}/${containerName}`
+    setUpdating(key)
+    try {
+      const res = await fetch(`/api/k8s/deployments/${namespace}/${name}/update`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ containerName, image: newImage }),
+      })
+      if (!res.ok) throw new Error('Update failed')
+      router.refresh()
+    } catch (err) {
+      console.error('Failed to apply update', err)
+      alert('Failed to apply update. See logs for details.')
+    }
+    setUpdating(null)
   }
 
   return (
@@ -121,12 +167,14 @@ export function DeploymentList({ deployments }: Props) {
                         {img.image.split('/').pop()}
                       </span>
                       {img.hasUpdate && img.latestTag && (
-                        <span
-                          className="text-xs bg-orange-500/15 border border-orange-500/30 text-orange-400 px-1.5 py-0.5 rounded font-mono"
-                          title={`Update available: ${img.latestTag}`}
+                        <button
+                          onClick={() => applyUpdate(dep.namespace, dep.name, img.name, img.image, img.latestTag!)}
+                          disabled={updating === `${dep.namespace}/${dep.name}/${img.name}`}
+                          className="text-xs bg-orange-500/15 border border-orange-500/30 text-orange-400 px-1.5 py-0.5 rounded font-mono hover:bg-orange-500/25 transition-all cursor-pointer disabled:opacity-50"
+                          title={`Click to update to ${img.latestTag}`}
                         >
-                          → {img.latestTag}
-                        </span>
+                          {updating === `${dep.namespace}/${dep.name}/${img.name}` ? '…' : `→ ${img.latestTag}`}
+                        </button>
                       )}
                     </span>
                   ))}

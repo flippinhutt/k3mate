@@ -1,14 +1,36 @@
+/**
+ * Represents a Kubernetes event for UI display.
+ *
+ * @interface Event
+ */
 interface Event {
+  /** Unique name of the event. */
   name: string
+  /** Namespace where the event occurred. */
   namespace: string
+  /** The object involved in this event (e.g., Pod, Deployment). */
   involvedObject: { kind?: string; name?: string }
+  /** Short, machine-readable reason for the event. */
   reason?: string
+  /** Human-readable description of the event. */
   message?: string
+  /** Type of event (Normal, Warning). */
   type: string
+  /** Number of times this event has occurred. */
   count: number
+  /** Timestamp of the last occurrence. */
   lastTimestamp?: Date | string
 }
 
+/**
+ * EventFeed renders a chronological list of cluster events.
+ * Highlights warnings and provides details about involved objects and namespaces.
+ *
+ * @component
+ * @param {Object} props Component props.
+ * @param {Event[]} props.events Array of event objects.
+ * @returns {JSX.Element} The rendered event feed.
+ */
 export function EventFeed({ events }: { events: Event[] }) {
   return (
     <div className="space-y-2">

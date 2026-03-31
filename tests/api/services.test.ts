@@ -25,7 +25,7 @@ describe('GET /api/k8s/services', () => {
     const mockApi = { listServiceForAllNamespaces: jest.fn().mockResolvedValue(mockServices) }
     ;(k8sClient.getCoreV1Api as jest.Mock).mockReturnValue(mockApi)
 
-    const response = await GET(new Request('http://localhost/api/k8s/services'))
+    const response = await GET(new (Request as any)('http://localhost/api/k8s/services'))
     const data = await response.json()
 
     expect(data.services).toHaveLength(1)
@@ -39,7 +39,7 @@ describe('GET /api/k8s/services', () => {
     const mockApi = { listNamespacedService: jest.fn().mockResolvedValue(mockServices) }
     ;(k8sClient.getCoreV1Api as jest.Mock).mockReturnValue(mockApi)
 
-    await GET(new Request('http://localhost/api/k8s/services?namespace=default'))
+    await GET(new (Request as any)('http://localhost/api/k8s/services?namespace=default'))
     expect(mockApi.listNamespacedService).toHaveBeenCalledWith({ namespace: 'default' })
   })
 })

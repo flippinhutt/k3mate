@@ -1,3 +1,5 @@
+'use client'
+import { useState, useEffect } from 'react'
 import { NodeCard } from './NodeCard'
 
 /**
@@ -37,6 +39,24 @@ interface Props {
  */
 export function ClusterOverview({ nodes, podCount, deploymentCount }: Props) {
   const readyNodes = nodes.filter(n => n.ready).length
+  const [metrics, setMetrics] = useState<Record<string, { cpuUsage: number; memoryUsage: number }> | null>(null)
+
+  useEffect(() => {
+    async function fetchMetrics() {
+      try {
+        const res = await fetch('/api/k8s/metrics/nodes')
+        if (res.ok) {
+          const data = await res.json()
+          setMetrics(data.metrics)
+        }
+      } catch (e) {
+        console.error('Failed to fetch node metrics', e)
+      }
+    }
+    fetchMetrics()
+    const intervalId = setInterval(fetchMetrics, 10000)
+    return () => clearInterval(intervalId)
+  }, [])
 
   return (
     <div className="space-y-6">
@@ -56,7 +76,7 @@ export function ClusterOverview({ nodes, podCount, deploymentCount }: Props) {
       <div>
         <h2 className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-3">Nodes</h2>
         <div className="space-y-2">
-          {nodes.map(node => <NodeCard key={node.name} {...node} />)}
+          {nodes.map(node => <NodeCard key={node.name} metrics={metrics?.[node.name]} {...node} />)}
         </div>
       </div>
     </div>

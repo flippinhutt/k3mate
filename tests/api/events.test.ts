@@ -24,7 +24,7 @@ describe('GET /api/k8s/events', () => {
     const mockApi = { listEventForAllNamespaces: jest.fn().mockResolvedValue(mockEvents) }
     ;(k8sClient.getCoreV1Api as jest.Mock).mockReturnValue(mockApi)
 
-    const response = await GET(new Request('http://localhost/api/k8s/events'))
+    const response = await GET(new (Request as any)('http://localhost/api/k8s/events'))
     const data = await response.json()
 
     expect(data.events).toHaveLength(1)

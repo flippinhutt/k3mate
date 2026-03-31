@@ -20,7 +20,7 @@ describe('GET /api/k8s/pods', () => {
     const mockApi = { listPodForAllNamespaces: jest.fn().mockResolvedValue(mockPods) }
     ;(k8sClient.getCoreV1Api as jest.Mock).mockReturnValue(mockApi)
 
-    const response = await GET(new Request('http://localhost/api/k8s/pods'))
+    const response = await GET(new (Request as any)('http://localhost/api/k8s/pods'))
     const data = await response.json()
 
     expect(data.pods).toHaveLength(1)
@@ -46,7 +46,7 @@ describe('GET /api/k8s/pods', () => {
     const mockApi = { listPodForAllNamespaces: jest.fn().mockResolvedValue(mockPods) }
     ;(k8sClient.getCoreV1Api as jest.Mock).mockReturnValue(mockApi)
 
-    const response = await GET(new Request('http://localhost/api/k8s/pods'))
+    const response = await GET(new (Request as any)('http://localhost/api/k8s/pods'))
     const data = await response.json()
 
     expect(data.pods[0].ports).toEqual([{ name: 'http', containerPort: 3000, protocol: 'TCP' }])

@@ -10,7 +10,7 @@ describe('POST /api/k8s/image-updates', () => {
   })
 
   function makeRequest(images: string[]) {
-    return new Request('http://localhost/api/k8s/image-updates', {
+    return new (Request as any)('http://localhost/api/k8s/image-updates', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ images }),

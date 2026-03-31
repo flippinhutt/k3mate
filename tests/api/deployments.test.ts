@@ -20,7 +20,7 @@ describe('GET /api/k8s/deployments', () => {
     const mockApi = { listDeploymentForAllNamespaces: jest.fn().mockResolvedValue(mockDeployments) }
     ;(k8sClient.getAppsV1Api as jest.Mock).mockReturnValue(mockApi)
 
-    const response = await GET(new Request('http://localhost/api/k8s/deployments'))
+    const response = await GET(new (Request as any)('http://localhost/api/k8s/deployments'))
     const data = await response.json()
 
     expect(data.deployments).toHaveLength(1)
@@ -55,7 +55,7 @@ describe('GET /api/k8s/deployments', () => {
     const mockApi = { listDeploymentForAllNamespaces: jest.fn().mockResolvedValue(mockDeployments) }
     ;(k8sClient.getAppsV1Api as jest.Mock).mockReturnValue(mockApi)
 
-    const response = await GET(new Request('http://localhost/api/k8s/deployments'))
+    const response = await GET(new (Request as any)('http://localhost/api/k8s/deployments'))
     const data = await response.json()
 
     expect(data.deployments[0].images).toEqual([{ name: 'web', image: 'myapp:v2.0' }])

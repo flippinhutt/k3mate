@@ -8,9 +8,11 @@ k3mate is a Next.js-powered dashboard designed to provide a clean, mobile-respon
 
 -   **Cluster Overview**: Real-time visualization of node health, resource pressure, and k8s versioning.
 -   **Workload Management**: Live list of Deployments, Pods, and Namespaces.
+-   **Interactive Workload Updates**: One-click updates for container images when newer versions are detected in the registry (Docker Hub).
 -   **Terminal Logs**: Stream logs directly from pods within the web interface.
 -   **Pod Lifecycle**: Quick actions to restart or delete pods for troubleshooting.
--   **Secure Authentication**: Token-based access to the Kubernetes control plane.
+-   **Resource Metrics**: Real-time CPU and Memory usage tracking for nodes and pods.
+-   **Secure Authentication**: Password-protected dashboard with session-based access to the Kubernetes control plane.
 
 ## 🏗 Tech Stack
 
@@ -45,6 +47,9 @@ SESSION_SECRET=your_random_32_char_secret_here
 # Optional: Set a password to protect the dashboard
 # DASHBOARD_PASSWORD=your_secure_password
 ```
+
+#### k3s Specifics
+If running on a k3s node, you can often find your kubeconfig at `/etc/rancher/k3s/k3s.yaml`. Ensure the `server` field in that file points to the correct IP if accessing from outside the node.
 
 ### Development
 ```bash
@@ -107,3 +112,36 @@ All routes are implemented as standard Next.js Route Handlers.
 - **Dashboard**: `ClusterOverview.tsx` manages the primary health indicators.
 - **Workloads**: `DeploymentList.tsx` and `PodList.tsx` use React hooks to fetch data from the server-side API routes.
 - **Layout**: `Shell.tsx` provides the responsive container and navigation.
+
+### 🔄 Workload Update Flow
+
+The following diagram illustrates how k3mate detects and applies image updates:
+
+```mermaid
+sequenceDiagram
+    participant UI as Dashboard UI
+    participant API as k3mate API
+    participant Cache as Internal Cache
+    participant Hub as Docker Hub
+    participant K8s as Kubernetes API
+
+    UI->>API: POST /api/k8s/image-updates [images]
+    API->>Cache: Check for cached tags (12h TTL)
+    alt Cache Miss
+        API->>Hub: Query latest tags
+        Hub-->>API: Tag list
+        API->>API: Compare & filter versions
+        API->>Cache: Store results
+    else Cache Hit
+        Cache-->>API: Return cached result
+    end
+    API-->>UI: Update info (hasUpdate: true)
+    
+    Note over UI: User clicks "Update" button
+    
+    UI->>API: POST /api/k8s/deployments/.../update
+    API->>K8s: PATCH deployment (strategic-merge)
+    K8s-->>API: Success
+    API-->>UI: OK
+    Note over UI: UI Refreshes (Rolling Update starts)
+```

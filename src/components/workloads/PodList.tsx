@@ -87,6 +87,14 @@ export function PodList({ pods }: Props) {
   const [logs, setLogs] = useState<Record<string, string>>({})
   const [restarting, setRestarting] = useState<string | null>(null)
 
+  /**
+   * Fetches the logs for a specific pod from the API.
+   *
+   * @async
+   * @param {string} namespace The pod namespace.
+   * @param {string} name The pod name.
+   * @returns {Promise<void>}
+   */
   async function fetchLogs(namespace: string, name: string) {
     const key = `${namespace}/${name}`
     const res = await fetch(`/api/k8s/pods/${namespace}/${name}/logs`)
@@ -94,6 +102,14 @@ export function PodList({ pods }: Props) {
     setLogs(prev => ({ ...prev, [key]: data.logs ?? data.error }))
   }
 
+  /**
+   * Triggers a pod restart by deleting the pod entity.
+   *
+   * @async
+   * @param {string} namespace The pod namespace.
+   * @param {string} name The pod name.
+   * @returns {Promise<void>}
+   */
   async function restartPod(namespace: string, name: string) {
     setRestarting(`${namespace}/${name}`)
     await fetch(`/api/k8s/pods/${namespace}/${name}/restart`, { method: 'POST' })

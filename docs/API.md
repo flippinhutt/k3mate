@@ -79,6 +79,14 @@ Update the replica count for a deployment.
 - **Body**: `{"replicas": "number"}`
 - **Response**: `{"ok": true, "replicas": "number"}`
 
+#### 2.2 Update Deployment Image
+Update a specific container image in a deployment.
+
+- **URL**: `/api/k8s/deployments/[namespace]/[name]/update`
+- **Method**: `POST`
+- **Body**: `{"containerName": "string", "image": "string"}`
+- **Response**: `{"ok": true, "containerName": "string", "image": "string"}`
+
 ---
 
 ### 3. Nodes
@@ -133,7 +141,46 @@ Retrieve the 100 most recent cluster events across all namespaces.
 
 ---
 
-### 5. Updates & Image Health
+### 5. Metrics
+Retrieve real-time resource usage metrics from the Metrics Server.
+
+#### 5.1 Node Metrics
+- **URL**: `/api/k8s/metrics/nodes`
+- **Method**: `GET`
+- **Response**:
+  ```json
+  {
+    "metrics": {
+      "node-name": {
+        "cpuUsage": "number (millicores)",
+        "memoryUsage": "number (bytes)"
+      }
+    }
+  }
+  ```
+
+#### 5.2 Pod Metrics
+- **URL**: `/api/k8s/metrics/pods`
+- **Method**: `GET`
+- **Query Parameters**:
+  - `namespace` (optional): Filter metrics by namespace.
+- **Response**:
+  ```json
+  {
+    "metrics": {
+      "namespace/pod-name": {
+        "cpuUsage": "number (millicores)",
+        "memoryUsage": "number (bytes)",
+        "window": "string",
+        "timestamp": "ISO8601 String"
+      }
+    }
+  }
+  ```
+
+---
+
+### 6. Updates & Image Health
 
 #### 5.1 Cluster Updates
 Check for available k3s release updates.
