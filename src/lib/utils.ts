@@ -2,11 +2,16 @@
  * Parses a Kubernetes CPU string into a numeric millicore value.
  * e.g., "100m" -> 100, "1" -> 1000
  *
- * @param {string} cpuCpu String representation of CPU from Kubernetes (e.g. "100m", "1.5").
+ * @param {string} cpuStr String representation of CPU from Kubernetes (e.g. "100m", "1.5", "1000000n").
  * @returns {number} The CPU value in millicores (m).
  */
 export function parseCpu(cpuStr?: string | null): number {
   if (!cpuStr) return 0
+  if (cpuStr.endsWith('n')) {
+    // Nanocores to millicores (1 millicore = 1,000,000 nanocores)
+    // Kubernetes metrics often return nanocores for high-precision resource tracking.
+    return Math.round(parseInt(cpuStr.slice(0, -1), 10) / 1000000)
+  }
   if (cpuStr.endsWith('m')) {
     return parseInt(cpuStr.slice(0, -1), 10)
   }
@@ -43,4 +48,20 @@ export function parseMemory(memStr?: string | null): number {
   }
 
   return Math.round(val * (multipliers[suffix] || 1))
+}
+
+/**
+ * Formats a numeric bytes value into a human-readable string (e.g., "1.2 GiB").
+ *
+ * @param {number} bytes The value in bytes.
+ * @param {number} [decimals=1] The number of decimal places to include.
+ * @returns {string} The formatted string (e.g., "500 MiB").
+ */
+export function formatMemory(bytes: number, decimals: number = 1): string {
+  if (bytes === 0) return '0 B'
+  const k = 1024
+  const dm = decimals < 0 ? 0 : decimals
+  const sizes = ['B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB']
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
 }

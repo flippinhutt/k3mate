@@ -11,7 +11,8 @@ k3mate is a Next.js-powered dashboard designed to provide a clean, mobile-respon
 -   **Interactive Workload Updates**: One-click updates for container images when newer versions are detected in the registry (Docker Hub).
 -   **Terminal Logs**: Stream logs directly from pods within the web interface.
 -   **Pod Lifecycle**: Quick actions to restart or delete pods for troubleshooting.
--   **Resource Metrics**: Real-time CPU and Memory usage tracking for nodes and pods.
+-   **Live Monitoring**: Toggleable real-time CPU and Memory usage tracking for nodes and pods with customizable refresh intervals (5s, 10s, 30s).
+-   **Resource Normalization**: Support for complex Kubernetes units including nanocores (`n`) and automatic human-readable scaling for memory (MiB, GiB).
 -   **Secure Authentication**: Password-protected dashboard with session-based access to the Kubernetes control plane.
 
 ## 🏗 Tech Stack

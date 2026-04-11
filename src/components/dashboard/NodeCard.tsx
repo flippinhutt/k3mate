@@ -18,7 +18,7 @@ interface NodeCardProps {
   metrics?: { cpuUsage: number; memoryUsage: number }
 }
 
-import { parseCpu, parseMemory } from '@/lib/utils'
+import { parseCpu, parseMemory, formatMemory } from '@/lib/utils'
 
 /**
  * NodeCard displays summarized health and resource information for a single Kubernetes node.
@@ -48,7 +48,8 @@ export function NodeCard({ name, ready, kubeletVersion, allocatable, metrics }: 
             )}
           </div>
           <div className="text-xs text-slate-500 font-mono">
-            Limit: {allocatable.cpu ?? '—'} cpu · {allocatable.memory ?? '—'} mem
+            {cpuAllocatable > 0 && `${cpuAllocatable}m cpu`}{' '}
+            {memAllocatable > 0 && `· ${formatMemory(memAllocatable)} mem`}
           </div>
         </div>
         <span className={`text-xs px-2 py-0.5 rounded-md font-medium ${ready ? 'bg-green-500/15 text-green-400' : 'bg-red-500/15 text-red-400'}`}>
@@ -61,7 +62,7 @@ export function NodeCard({ name, ready, kubeletVersion, allocatable, metrics }: 
           <div className="space-y-1.5">
             <div className="flex justify-between text-xs font-mono">
               <span className="text-slate-400">CPU Usage</span>
-              <span className={cpuPercent > 80 ? 'text-red-400' : 'text-slate-300'}>{cpuPercent}%</span>
+              <span className={cpuPercent > 80 ? 'text-red-400' : 'text-slate-300'}>{cpuPercent}% ({metrics.cpuUsage}m)</span>
             </div>
             <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
               <div 
@@ -74,7 +75,7 @@ export function NodeCard({ name, ready, kubeletVersion, allocatable, metrics }: 
           <div className="space-y-1.5">
             <div className="flex justify-between text-xs font-mono">
               <span className="text-slate-400">Memory Usage</span>
-              <span className={memPercent > 80 ? 'text-red-400' : 'text-slate-300'}>{memPercent}%</span>
+              <span className={memPercent > 80 ? 'text-red-400' : 'text-slate-300'}>{memPercent}% ({formatMemory(metrics.memoryUsage)})</span>
             </div>
             <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
               <div 

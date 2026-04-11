@@ -39,24 +39,45 @@ interface Props {
  */
 export function ClusterOverview({ nodes, podCount, deploymentCount }: Props) {
   const readyNodes = nodes.filter(n => n.ready).length
+
+  /** Real-time metrics for nodes in the cluster (e.g. CPU/Mem usage percentage relative to limits). */
   const [metrics, setMetrics] = useState<Record<string, { cpuUsage: number; memoryUsage: number }> | null>(null)
+  
+  /** Current metrics polling interval in milliseconds. 0 disables auto-refresh. */
+  const [refreshInterval, setRefreshInterval] = useState<number>(10000)
+  
+  /** True when a metrics fetch operation is currently in flight. */
+  const [isRefreshing, setIsRefreshing] = useState(false)
+
+  /**
+   * Fetches the latest resource usage metrics for all nodes from the internal proxy API.
+   * Normalizes values for the NodeCard component and handles fetch states.
+   *
+   * @async
+   * @returns {Promise<void>}
+   */
+  async function fetchMetrics() {
+    setIsRefreshing(true)
+    try {
+      const res = await fetch('/api/k8s/metrics/nodes')
+      if (res.ok) {
+        const data = await res.json()
+        setMetrics(data.metrics)
+      }
+    } catch (e) {
+      console.error('Failed to fetch node metrics', e)
+    } finally {
+      setIsRefreshing(false)
+    }
+  }
 
   useEffect(() => {
-    async function fetchMetrics() {
-      try {
-        const res = await fetch('/api/k8s/metrics/nodes')
-        if (res.ok) {
-          const data = await res.json()
-          setMetrics(data.metrics)
-        }
-      } catch (e) {
-        console.error('Failed to fetch node metrics', e)
-      }
-    }
     fetchMetrics()
-    const intervalId = setInterval(fetchMetrics, 10000)
+    if (refreshInterval === 0) return
+
+    const intervalId = setInterval(fetchMetrics, refreshInterval)
     return () => clearInterval(intervalId)
-  }, [])
+  }, [refreshInterval])
 
   return (
     <div className="space-y-6">
@@ -74,7 +95,41 @@ export function ClusterOverview({ nodes, podCount, deploymentCount }: Props) {
         ))}
       </div>
       <div>
-        <h2 className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-3">Nodes</h2>
+      <div className="flex items-center justify-between">
+        <h2 className="text-xs font-medium text-slate-500 uppercase tracking-wider">Nodes</h2>
+        <div className="flex items-center gap-3">
+          <div className="flex bg-[#0F172A] border border-slate-800 rounded-lg p-0.5">
+            {[
+              { label: '5s', value: 5000 },
+              { label: '10s', value: 10000 },
+              { label: '30s', value: 30000 },
+              { label: 'Off', value: 0 },
+            ].map((opt) => (
+              <button
+                key={opt.label}
+                onClick={() => setRefreshInterval(opt.value)}
+                className={`px-2 py-1 text-[10px] font-medium rounded-md transition-colors ${
+                  refreshInterval === opt.value
+                    ? 'bg-slate-800 text-slate-100'
+                    : 'text-slate-500 hover:text-slate-300'
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+          <button
+            onClick={() => fetchMetrics()}
+            disabled={isRefreshing}
+            className="p-1.5 bg-[#0F172A] border border-slate-800 rounded-lg text-slate-400 hover:text-slate-100 disabled:opacity-40 transition-colors"
+            title="Refresh Metrics"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+            </svg>
+          </button>
+        </div>
+      </div>
         <div className="space-y-2">
           {nodes.map(node => <NodeCard key={node.name} metrics={metrics?.[node.name]} {...node} />)}
         </div>

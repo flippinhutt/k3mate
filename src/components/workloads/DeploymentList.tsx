@@ -1,3 +1,4 @@
+'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { StatusDot } from '@/components/ui/StatusDot'
